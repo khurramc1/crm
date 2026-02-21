@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ object.title }} - Deal{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold">{{ object.title }}</h1>
+        <a href="{% url 'deals:deal_list' %}" class="text-blue-600 hover:underline">← Back to Deals</a>
+    </div>
+
+    <!-- Deal Info -->
+    <div class="bg-white rounded-lg shadow p-6 space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="text-sm text-gray-600">Contact</label>
+                <p class="font-medium"><a href="{% url 'contacts:contact_detail' object.contact.id %}" class="text-blue-600 hover:underline">{{ object.contact }}</a></p>
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Company</label>
+                <p class="font-medium">{% if object.company %}<a href="{% url 'contacts:company_detail' object.company.id %}" class="text-blue-600 hover:underline">{{ object.company }}</a>{% else %}-{% endif %}</p>
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Value</label>
+                <p class="font-medium">{{ object.value }} {{ object.currency }}</p>
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Status</label>
+                <span class="px-3 py-1 rounded text-sm font-medium
+                    {% if object.status == 'won' %}bg-green-100 text-green-800
+                    {% elif object.status == 'lost' %}bg-red-100 text-red-800
+                    {% else %}bg-blue-100 text-blue-800{% endif %}">
+                    {{ object.get_status_display }}
+                </span>
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Pipeline</label>
+                <p class="font-medium"><a href="{% url 'deals:pipeline_detail' object.pipeline.id %}" class="text-blue-600 hover:underline">{{ object.pipeline }}</a></p>
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Stage</label>
+                <p class="font-medium">{{ object.stage }}</p>
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Assigned To</label>
+                <p class="font-medium">{% if object.assigned_to %}{{ object.assigned_to.get_full_name|default:object.assigned_to.username }}{% else %}-{% endif %}</p>
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Close Date</label>
+                <p class="font-medium">{{ object.close_date|date:"M d, Y"|default:"-" }}</p>
+            </div>
+        </div>
+        <div>
+            <label class="text-sm text-gray-600">Description</label>
+            <p class="mt-1">{{ object.description|linebreaks|default:"-" }}</p>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-2">
+        <a href="{% url 'deals:deal_update' object.id %}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            Edit
+        </a>
+        <a href="{% url 'deals:deal_delete' object.id %}" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+            Delete
+        </a>
+    </div>
+</div>
+{% endblock %}

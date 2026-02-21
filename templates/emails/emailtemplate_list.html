@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Email Templates - CRM{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold">Email Templates</h1>
+        <a href="{% url 'emails:template_create' %}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            New Template
+        </a>
+    </div>
+
+    <!-- Search -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <form method="get" class="flex gap-4">
+            <input type="text" name="search" placeholder="Search templates..." value="{{ request.GET.search }}" class="flex-1 px-4 py-2 border rounded">
+            <button type="submit" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+                Search
+            </button>
+        </form>
+    </div>
+
+    <!-- Templates Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <table class="w-full">
+            <thead class="bg-gray-100 border-b">
+                <tr>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Name</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Subject</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Created By</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Created</th>
+                    <th class="px-6 py-3 text-right text-sm font-semibold">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y">
+                {% for template in object_list %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                        <a href="{% url 'emails:template_detail' template.id %}" class="text-blue-600 hover:underline">
+                            {{ template.name }}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">
+                        {{ template.subject }}
+                    </td>
+                    <td class="px-6 py-4 text-sm">
+                        {{ template.created_by.get_full_name|default:template.created_by.username }}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">
+                        {{ template.created_at|date:"M d, Y" }}
+                    </td>
+                    <td class="px-6 py-4 text-right space-x-2">
+                        <a href="{% url 'emails:template_update' template.id %}" class="text-blue-600 hover:underline text-sm">
+                            Edit
+                        </a>
+                        <a href="{% url 'emails:template_delete' template.id %}" class="text-red-600 hover:underline text-sm">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                        No email templates yet. <a href="{% url 'emails:template_create' %}" class="text-blue-600 hover:underline">Create one</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="flex justify-center gap-2">
+        {% if page_obj.has_previous %}
+        <a href="?page=1" class="px-3 py-2 border rounded hover:bg-gray-100">First</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 border rounded hover:bg-gray-100">Previous</a>
+        {% endif %}
+
+        <span class="px-3 py-2">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 border rounded hover:bg-gray-100">Next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-2 border rounded hover:bg-gray-100">Last</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}New{% endif %} Workflow Step{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold">{% if form.instance.pk %}Edit Step{% else %}New Step{% endif %}</h1>
+        <a href="{% url 'automations:workflow_detail' workflow.id %}" class="text-blue-600 hover:underline">← Back</a>
+    </div>
+
+    <form method="post" class="bg-white rounded-lg shadow p-6 space-y-4">
+        {% csrf_token %}
+        
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Action *</label>
+            {{ form.action }}
+            {% if form.action.errors %}<p class="text-red-600 text-sm">{{ form.action.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Delay (days)</label>
+            {{ form.delay_days }}
+            {% if form.delay_days.errors %}<p class="text-red-600 text-sm">{{ form.delay_days.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Email Template (if applicable)</label>
+            {{ form.email_template }}
+            {% if form.email_template.errors %}<p class="text-red-600 text-sm">{{ form.email_template.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Enabled</label>
+            {{ form.is_enabled }}
+        </div>
+
+        <div class="flex gap-2 pt-4">
+            <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                {% if form.instance.pk %}Save{% else %}Create{% endif %}
+            </button>
+            <a href="{% url 'automations:workflow_detail' workflow.id %}" class="px-6 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+    input[type="text"], input[type="number"], select, textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 0.375rem;
+    }
+</style>
+{% endblock %}

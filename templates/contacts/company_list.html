@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Companies - CRM{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold">Companies</h1>
+        <a href="{% url 'contacts:company_create' %}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            New Company
+        </a>
+    </div>
+
+    <!-- Search -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <form method="get" class="flex gap-4">
+            <input type="text" name="search" placeholder="Search companies..." value="{{ request.GET.search }}" class="flex-1 px-4 py-2 border rounded">
+            <button type="submit" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">
+                Search
+            </button>
+        </form>
+    </div>
+
+    <!-- Companies Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <table class="w-full">
+            <thead class="bg-gray-100 border-b">
+                <tr>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Name</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Domain</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Industry</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Size</th>
+                    <th class="px-6 py-3 text-center text-sm font-semibold">Contacts</th>
+                    <th class="px-6 py-3 text-right text-sm font-semibold">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y">
+                {% for company in object_list %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                        <a href="{% url 'contacts:company_detail' company.id %}" class="text-blue-600 hover:underline font-medium">
+                            {{ company.name }}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">
+                        {{ company.domain|default:"-" }}
+                    </td>
+                    <td class="px-6 py-4 text-sm">
+                        {{ company.industry|default:"-" }}
+                    </td>
+                    <td class="px-6 py-4 text-sm">
+                        <span class="px-2 py-1 bg-gray-200 rounded text-xs">
+                            {{ company.get_size_display|default:"-" }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-center text-sm">
+                        {{ company.contact_count }}
+                    </td>
+                    <td class="px-6 py-4 text-right space-x-2">
+                        <a href="{% url 'contacts:company_update' company.id %}" class="text-blue-600 hover:underline text-sm">
+                            Edit
+                        </a>
+                        <a href="{% url 'contacts:company_delete' company.id %}" class="text-red-600 hover:underline text-sm">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                        No companies yet. <a href="{% url 'contacts:company_create' %}" class="text-blue-600 hover:underline">Create one</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="flex justify-center gap-2">
+        {% if page_obj.has_previous %}
+        <a href="?page=1" class="px-3 py-2 border rounded hover:bg-gray-100">First</a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 border rounded hover:bg-gray-100">Previous</a>
+        {% endif %}
+
+        <span class="px-3 py-2">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 border rounded hover:bg-gray-100">Next</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-2 border rounded hover:bg-gray-100">Last</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

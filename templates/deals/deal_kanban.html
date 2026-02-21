@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Kanban Board - Deals{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold">Deal Kanban Board</h1>
+        <a href="{% url 'deals:deal_list' %}" class="text-blue-600 hover:underline">← Back to List View</a>
+    </div>
+
+    <!-- Kanban Columns -->
+    <div class="overflow-x-auto">
+        <div class="flex gap-4 pb-4">
+            {% for stage, deals in deals_by_stage.items %}
+            <div class="bg-gray-100 rounded-lg p-4" style="min-width: 300px;">
+                <h3 class="font-semibold text-lg mb-4">
+                    {{ stage.name }}
+                    <span class="text-sm text-gray-600">({{ deals.count }})</span>
+                </h3>
+                <div class="space-y-3">
+                    {% for deal in deals %}
+                    <div class="bg-white rounded-lg p-4 shadow hover:shadow-lg transition cursor-move" draggable="true">
+                        <p class="font-medium"><a href="{% url 'deals:deal_detail' deal.id %}" class="text-blue-600 hover:underline">{{ deal.title }}</a></p>
+                        <p class="text-sm text-gray-600">{{ deal.contact.full_name }}</p>
+                        <p class="text-sm font-semibold text-green-600">{{ deal.value }} {{ deal.currency }}</p>
+                        <p class="text-xs text-gray-500 mt-2">{{ deal.created_at|date:"M d, Y" }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-400 text-center py-8">No deals in this stage</p>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Add New Deal Button -->
+    <div class="mt-6">
+        <a href="{% url 'deals:deal_create' %}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            New Deal
+        </a>
+    </div>
+</div>
+{% endblock %}

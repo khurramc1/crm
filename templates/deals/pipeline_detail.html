@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ pipeline.name }} - Pipeline{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold">{{ pipeline.name }}</h1>
+        <a href="{% url 'deals:pipeline_list' %}" class="text-blue-600 hover:underline">← Back to Pipelines</a>
+    </div>
+
+    <!-- Pipeline Info -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="space-y-4">
+            <div>
+                <label class="text-sm text-gray-600">Description</label>
+                <p>{{ pipeline.description|default:"-" }}</p>
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Stages</label>
+                <p>{{ pipeline.stage_set.count }} stages</p>
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Total Deals</label>
+                <p>{{ pipeline.deal_set.count }} deals</p>
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Created By</label>
+                <p>{{ pipeline.created_by.get_full_name|default:pipeline.created_by.username }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stages -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold mb-4">Stages</h3>
+        <div class="space-y-2">
+            {% for stage in pipeline.stage_set.all %}
+            <div class="flex justify-between items-center p-3 border rounded">
+                <div>
+                    <p class="font-medium">{{ stage.name }}</p>
+                    <p class="text-sm text-gray-600">{{ stage.probability }}% win probability</p>
+                </div>
+                <span class="text-sm text-gray-500">{{ stage.deal_set.count }} deals</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-2">
+        <a href="{% url 'deals:deal_kanban' %}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            View Kanban
+        </a>
+    </div>
+</div>
+{% endblock %}

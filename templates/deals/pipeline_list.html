@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Pipelines - Deals{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold">Sales Pipelines</h1>
+        <a href="{% url 'deals:pipeline_create' %}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            New Pipeline
+        </a>
+    </div>
+
+    <!-- Pipelines Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for pipeline in object_list %}
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-lg font-semibold">
+                        <a href="{% url 'deals:pipeline_detail' pipeline.id %}" class="text-blue-600 hover:underline">
+                            {{ pipeline.name }}
+                        </a>
+                    </h3>
+                    <p class="text-sm text-gray-600 mt-1">{{ pipeline.description|truncatewords:10 }}</p>
+                </div>
+                <div class="text-right space-x-2">
+                    <a href="{% url 'deals:pipeline_detail' pipeline.id %}" class="text-blue-600 hover:underline text-sm">View</a>
+                </div>
+            </div>
+            <div class="mt-4 pt-4 border-t">
+                <p class="text-sm text-gray-500">{{ pipeline.stage_set.count }} stages</p>
+                <p class="text-sm text-gray-500">{{ pipeline.deal_set.count }} deals</p>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-8 text-gray-500">
+            No pipelines yet. <a href="{% url 'deals:pipeline_create' %}" class="text-blue-600 hover:underline">Create one</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Email Campaigns - CRM{% endblock %}
+
+{% block header %}Email Campaigns{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <form method="get" class="flex gap-4 flex-1 mr-4">
+        <input type="text" name="search" placeholder="Search campaigns..." value="{{ request.GET.search }}" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg">
+        
+        <select name="status" class="px-4 py-2 border border-gray-300 rounded-lg">
+            <option value="">All Status</option>
+            {% for value, label in statuses %}
+                <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Search</button>
+    </form>
+    
+    <a href="{% url 'emails:campaign_create' %}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+        New Campaign
+    </a>
+</div>
+
+<div class="grid grid-cols-1 gap-4">
+    {% for campaign in campaigns %}
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold">{{ campaign.name }}</h3>
+                    <p class="text-sm text-gray-500">{{ campaign.description }}</p>
+                </div>
+                <span class="px-3 py-1 rounded text-xs font-semibold {% if campaign.status == 'draft' %}bg-gray-100 text-gray-800{% elif campaign.status == 'sent' %}bg-green-100 text-green-800{% elif campaign.status == 'sending' %}bg-blue-100 text-blue-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                    {{ campaign.get_status_display }}
+                </span>
+            </div>
+
+            <div class="grid grid-cols-4 gap-4 mb-4 text-sm">
+                <div>
+                    <p class="text-gray-500">Sent</p>
+                    <p class="text-lg font-semibold">{{ campaign.sent_count }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Open Rate</p>
+                    <p class="text-lg font-semibold">{{ campaign.open_rate|floatformat:1 }}%</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Click Rate</p>
+                    <p class="text-lg font-semibold">{{ campaign.click_rate|floatformat:1 }}%</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Template</p>
+                    <p class="text-sm">{{ campaign.template.name }}</p>
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <a href="{% url 'emails:campaign_detail' campaign.id %}" class="text-blue-600 hover:underline text-sm">View</a>
+                {% if campaign.status == 'draft' %}
+                    <a href="{% url 'emails:campaign_update' campaign.id %}" class="text-blue-600 hover:underline text-sm">Edit</a>
+                    <a href="{% url 'emails:campaign_send' campaign.id %}" class="text-green-600 hover:underline text-sm">Send</a>
+                {% endif %}
+                <a href="{% url 'emails:campaign_delete' campaign.id %}" class="text-red-600 hover:underline text-sm">Delete</a>
+            </div>
+        </div>
+    {% empty %}
+        <div class="bg-white rounded-lg shadow p-6 text-center text-gray-500">
+            No campaigns found. <a href="{% url 'emails:campaign_create' %}" class="text-blue-600 hover:underline">Create one now</a>
+        </div>
+    {% endfor %}
+</div>
+
+{% if is_paginated %}
+    <div class="mt-6 flex justify-center gap-2">
+        {% if page_obj.has_previous %}
+            <a href="?page=1" class="px-3 py-1 border border-gray-300 rounded">First</a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 border border-gray-300 rounded">Previous</a>
+        {% endif %}
+        
+        <span class="px-3 py-1">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 border border-gray-300 rounded">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-1 border border-gray-300 rounded">Last</a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}

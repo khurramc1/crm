@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ workflow.name }} - Workflow{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold">{{ workflow.name }}</h1>
+        <a href="{% url 'automations:workflow_list' %}" class="text-blue-600 hover:underline">← Back</a>
+    </div>
+
+    <!-- Workflow Info -->
+    <div class="bg-white rounded-lg shadow p-6 space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="text-sm text-gray-600">Trigger Event</label>
+                <p class="font-medium">{{ workflow.get_trigger_event_display }}</p>
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Status</label>
+                <span class="px-2 py-1 rounded text-sm font-medium {% if workflow.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                    {% if workflow.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+            </div>
+        </div>
+        <div>
+            <label class="text-sm text-gray-600">Description</label>
+            <p>{{ workflow.description|default:"-" }}</p>
+        </div>
+    </div>
+
+    <!-- Workflow Steps -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold mb-4">Workflow Steps</h3>
+        <div class="space-y-3">
+            {% for step in workflow.workflowstep_set.all %}
+            <div class="border rounded-lg p-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="font-medium">Step {{ step.order }}: {{ step.get_action_display }}</p>
+                        {% if step.delay_days %}
+                        <p class="text-sm text-gray-600">Delay: {{ step.delay_days }} days</p>
+                        {% endif %}
+                        {% if step.email_template %}
+                        <p class="text-sm text-gray-600">Template: {{ step.email_template.name }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-gray-500">No steps defined</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Executions -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold mb-4">Executions</h3>
+        <p class="text-sm text-gray-600">Total executions: {{ workflow.workflowexecution_set.count }}</p>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-2">
+        <a href="{% url 'automations:workflow_update' workflow.id %}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            Edit
+        </a>
+        <a href="{% url 'automations:workflow_delete' workflow.id %}" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+            Delete
+        </a>
+    </div>
+</div>
+{% endblock %}

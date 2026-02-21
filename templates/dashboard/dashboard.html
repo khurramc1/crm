@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - CRM{% endblock %}
+
+{% block header %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <!-- Stats Cards -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm">Total Contacts</p>
+                <p class="text-3xl font-bold text-gray-800">{{ total_contacts }}</p>
+            </div>
+            <svg class="w-12 h-12 text-blue-500 opacity-20" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"></path>
+            </svg>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm">Active Deals</p>
+                <p class="text-3xl font-bold text-gray-800">{{ active_deals }}</p>
+            </div>
+            <svg class="w-12 h-12 text-green-500 opacity-20" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+            </svg>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm">Deal Value</p>
+                <p class="text-3xl font-bold text-gray-800">${{ total_deal_value|floatformat:0 }}</p>
+            </div>
+            <svg class="w-12 h-12 text-purple-500 opacity-20" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M8.16 5.314l4.897-4.897a1 1 0 111.415 1.415L9.575 6.73l2.282 2.282a1 1 0 11-1.415 1.415L8.16 8.144 5.878 10.425a1 1 0 001.415 1.415l2.282-2.282 4.897 4.897a1 1 0 11-1.415 1.415L8.16 11.57l-2.282 2.282a1 1 0 01-1.415-1.415l2.282-2.282-4.897-4.897a1 1 0 111.415-1.415l4.897 4.897z"></path>
+            </svg>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm">Emails This Month</p>
+                <p class="text-3xl font-bold text-gray-800">{{ emails_sent_month }}</p>
+            </div>
+            <svg class="w-12 h-12 text-orange-500 opacity-20" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+            </svg>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Recent Contacts -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b">
+            <h3 class="text-lg font-semibold">Recent Contacts</h3>
+        </div>
+        <div class="divide-y">
+            {% for contact in recent_contacts %}
+                <div class="p-4 hover:bg-gray-50">
+                    <a href="{% url 'contacts:contact_detail' contact.id %}" class="font-medium text-blue-600">
+                        {{ contact.full_name }}
+                    </a>
+                    <p class="text-sm text-gray-500">{{ contact.email }}</p>
+                    {% if contact.company %}
+                        <p class="text-sm text-gray-600">{{ contact.company.name }}</p>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <div class="p-4 text-gray-500">No contacts yet</div>
+            {% endfor %}
+        </div>
+        <div class="p-4 border-t bg-gray-50">
+            <a href="{% url 'contacts:contact_list' %}" class="text-sm text-blue-600 hover:underline">View all contacts →</a>
+        </div>
+    </div>
+
+    <!-- Recent Deals -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b">
+            <h3 class="text-lg font-semibold">Recent Deals</h3>
+        </div>
+        <div class="divide-y">
+            {% for deal in recent_deals %}
+                <div class="p-4 hover:bg-gray-50">
+                    <a href="{% url 'deals:deal_detail' deal.id %}" class="font-medium text-blue-600">
+                        {{ deal.title }}
+                    </a>
+                    <p class="text-sm text-gray-500">{{ deal.contact.full_name }}</p>
+                    <p class="text-sm font-semibold text-green-600">${{ deal.value }}</p>
+                </div>
+            {% empty %}
+                <div class="p-4 text-gray-500">No deals yet</div>
+            {% endfor %}
+        </div>
+        <div class="p-4 border-t bg-gray-50">
+            <a href="{% url 'deals:deal_list' %}" class="text-sm text-blue-600 hover:underline">View all deals →</a>
+        </div>
+    </div>
+
+    <!-- Campaign Performance -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b">
+            <h3 class="text-lg font-semibold">Campaign Performance</h3>
+        </div>
+        <div class="divide-y">
+            {% for campaign in campaign_stats %}
+                <div class="p-4 hover:bg-gray-50">
+                    <p class="font-medium">{{ campaign.name }}</p>
+                    <div class="mt-2 space-y-1 text-sm text-gray-600">
+                        <p>Sent: {{ campaign.sent_count }}</p>
+                        <p>Opened: {{ campaign.opened_count }} ({{ campaign.open_rate|floatformat:1 }}%)</p>
+                        <p>Clicked: {{ campaign.clicked_count }} ({{ campaign.click_rate|floatformat:1 }}%)</p>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="p-4 text-gray-500">No campaigns yet</div>
+            {% endfor %}
+        </div>
+        <div class="p-4 border-t bg-gray-50">
+            <a href="{% url 'emails:campaign_list' %}" class="text-sm text-blue-600 hover:underline">View all campaigns →</a>
+        </div>
+    </div>
+</div>
+
+<div class="mt-6">
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b">
+            <h3 class="text-lg font-semibold">Quick Actions</h3>
+        </div>
+        <div class="p-6 flex gap-4">
+            <a href="{% url 'contacts:contact_create' %}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                New Contact
+            </a>
+            <a href="{% url 'deals:deal_create' %}" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                New Deal
+            </a>
+            <a href="{% url 'emails:campaign_create' %}" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+                New Campaign
+            </a>
+            <a href="{% url 'automations:workflow_create' %}" class="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700">
+                New Workflow
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

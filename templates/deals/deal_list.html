@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Deals - CRM{% endblock %}
+
+{% block header %}Deals{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <form method="get" class="flex gap-4 flex-1 mr-4">
+        <input type="text" name="search" placeholder="Search deals..." value="{{ request.GET.search }}" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg">
+        
+        <select name="status" class="px-4 py-2 border border-gray-300 rounded-lg">
+            <option value="">All Status</option>
+            {% for value, label in statuses %}
+                <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Search</button>
+    </form>
+    
+    <div class="flex gap-2">
+        <a href="{% url 'deals:deal_kanban' %}" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+            Kanban View
+        </a>
+        <a href="{% url 'deals:deal_create' %}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            New Deal
+        </a>
+    </div>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="p-4 bg-gray-50 border-b flex justify-between items-center">
+        <h3 class="font-semibold">All Deals</h3>
+        <p class="text-lg font-bold text-green-600">Total: ${{ total_value|floatformat:0 }}</p>
+    </div>
+    
+    <table class="w-full">
+        <thead class="bg-gray-100 border-b">
+            <tr>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Title</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Contact</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Value</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Stage</th>
+                <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                <th class="px-6 py-3 text-center text-sm font-semibold text-gray-700">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y">
+            {% for deal in deals %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm">
+                        <a href="{% url 'deals:deal_detail' deal.id %}" class="text-blue-600 hover:underline font-medium">
+                            {{ deal.title }}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">
+                        <a href="{% url 'contacts:contact_detail' deal.contact.id %}" class="text-blue-600 hover:underline">
+                            {{ deal.contact.full_name }}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 text-sm font-semibold text-green-600">${{ deal.value }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ deal.stage.name|default:"-" }}</td>
+                    <td class="px-6 py-4 text-sm">
+                        <span class="px-2 py-1 rounded text-xs font-semibold {% if deal.status == 'open' %}bg-blue-100 text-blue-800{% elif deal.status == 'won' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ deal.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-center text-sm space-x-2">
+                        <a href="{% url 'deals:deal_update' deal.id %}" class="text-blue-600 hover:underline">Edit</a>
+                        <a href="{% url 'deals:deal_delete' deal.id %}" class="text-red-600 hover:underline">Delete</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">No deals found</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if is_paginated %}
+    <div class="mt-6 flex justify-center gap-2">
+        {% if page_obj.has_previous %}
+            <a href="?page=1" class="px-3 py-1 border border-gray-300 rounded">First</a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 border border-gray-300 rounded">Previous</a>
+        {% endif %}
+        
+        <span class="px-3 py-1">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 border border-gray-300 rounded">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-1 border border-gray-300 rounded">Last</a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}

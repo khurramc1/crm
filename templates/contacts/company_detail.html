@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}{{ object.name }} - Company{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold">{{ object.name }}</h1>
+        <a href="{% url 'contacts:company_list' %}" class="text-blue-600 hover:underline">← Back to Companies</a>
+    </div>
+
+    <!-- Company Info -->
+    <div class="bg-white rounded-lg shadow p-6 space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="text-sm text-gray-600">Domain</label>
+                <p class="font-medium">{{ object.domain|default:"-" }}</p>
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Industry</label>
+                <p class="font-medium">{{ object.industry|default:"-" }}</p>
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Size</label>
+                <p class="font-medium">{{ object.get_size_display|default:"-" }}</p>
+            </div>
+            <div>
+                <label class="text-sm text-gray-600">Created</label>
+                <p class="font-medium">{{ object.created_at|date:"M d, Y" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Associated Contacts -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b flex justify-between items-center">
+            <h3 class="text-lg font-semibold">Contacts ({{ object.contacts.count }})</h3>
+            <a href="{% url 'contacts:contact_create' %}" class="text-sm text-blue-600 hover:underline">+ Add Contact</a>
+        </div>
+        <div class="divide-y">
+            {% for contact in object.contacts.all %}
+            <div class="p-4 hover:bg-gray-50">
+                <a href="{% url 'contacts:contact_detail' contact.id %}" class="text-blue-600 hover:underline font-medium">
+                    {{ contact.full_name }}
+                </a>
+                <p class="text-sm text-gray-600">{{ contact.email }}</p>
+                <span class="text-xs text-gray-500">Status: {{ contact.get_status_display }}</span>
+            </div>
+            {% empty %}
+            <div class="p-4 text-center text-gray-500">
+                No contacts for this company yet
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-2">
+        <a href="{% url 'contacts:company_update' object.id %}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            Edit
+        </a>
+        <a href="{% url 'contacts:company_delete' object.id %}" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+            Delete
+        </a>
+    </div>
+</div>
+{% endblock %}

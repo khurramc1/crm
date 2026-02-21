@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Workflow Executions{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl font-bold">Workflow Executions</h1>
+        <a href="{% url 'automations:workflow_list' %}" class="text-blue-600 hover:underline">← Back to Workflows</a>
+    </div>
+
+    <!-- Executions Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <table class="w-full">
+            <thead class="bg-gray-100 border-b">
+                <tr>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Workflow</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Contact</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Status</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Started</th>
+                    <th class="px-6 py-3 text-left text-sm font-semibold">Completed</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y">
+                {% for execution in object_list %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">
+                        <a href="{% url 'automations:workflow_detail' execution.workflow.id %}" class="text-blue-600 hover:underline">
+                            {{ execution.workflow.name }}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4">
+                        <a href="{% url 'contacts:contact_detail' execution.contact.id %}" class="text-blue-600 hover:underline">
+                            {{ execution.contact.full_name }}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 rounded text-xs font-medium
+                            {% if execution.status == 'completed' %}bg-green-100 text-green-800
+                            {% elif execution.status == 'in_progress' %}bg-blue-100 text-blue-800
+                            {% elif execution.status == 'cancelled' %}bg-red-100 text-red-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ execution.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm">
+                        {{ execution.started_at|date:"M d H:i"|default:"-" }}
+                    </td>
+                    <td class="px-6 py-4 text-sm">
+                        {{ execution.completed_at|date:"M d H:i"|default:"-" }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                        No workflow executions yet
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

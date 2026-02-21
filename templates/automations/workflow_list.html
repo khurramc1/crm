@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Workflows - CRM{% endblock %}
+
+{% block header %}Automation Workflows{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <form method="get" class="flex gap-4 flex-1 mr-4">
+        <input type="text" name="search" placeholder="Search workflows..." value="{{ request.GET.search }}" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg">
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Search</button>
+    </form>
+    
+    <a href="{% url 'automations:workflow_create' %}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+        New Workflow
+    </a>
+</div>
+
+<div class="grid grid-cols-1 gap-4">
+    {% for workflow in workflows %}
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold">{{ workflow.name }}</h3>
+                    <p class="text-sm text-gray-500">{{ workflow.description }}</p>
+                </div>
+                <span class="px-3 py-1 rounded text-xs font-semibold {% if workflow.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                    {% if workflow.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4 mb-4 text-sm">
+                <div>
+                    <p class="text-gray-500">Trigger</p>
+                    <p class="font-semibold">{{ workflow.get_trigger_event_display }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Steps</p>
+                    <p class="text-lg font-semibold">{{ workflow.steps.count }}</p>
+                </div>
+                <div>
+                    <p class="text-gray-500">Executions</p>
+                    <p class="text-lg font-semibold">{{ workflow.executions.count }}</p>
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <a href="{% url 'automations:workflow_detail' workflow.id %}" class="text-blue-600 hover:underline text-sm">View</a>
+                <a href="{% url 'automations:workflow_update' workflow.id %}" class="text-blue-600 hover:underline text-sm">Edit</a>
+                <a href="{% url 'automations:workflow_delete' workflow.id %}" class="text-red-600 hover:underline text-sm">Delete</a>
+            </div>
+        </div>
+    {% empty %}
+        <div class="bg-white rounded-lg shadow p-6 text-center text-gray-500">
+            No workflows found. <a href="{% url 'automations:workflow_create' %}" class="text-blue-600 hover:underline">Create one now</a>
+        </div>
+    {% endfor %}
+</div>
+
+{% if is_paginated %}
+    <div class="mt-6 flex justify-center gap-2">
+        {% if page_obj.has_previous %}
+            <a href="?page=1" class="px-3 py-1 border border-gray-300 rounded">First</a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 border border-gray-300 rounded">Previous</a>
+        {% endif %}
+        
+        <span class="px-3 py-1">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 border border-gray-300 rounded">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-1 border border-gray-300 rounded">Last</a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}
